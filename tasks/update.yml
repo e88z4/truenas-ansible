@@ -1,0 +1,32 @@
+---
+- name: update | get train
+  uri:
+    url: "{{ truenas_api_url + '/update/get_trains' }}"
+    force_basic_auth: true
+    method: "GET"
+    user: "{{ truenas_user }}"
+    password: "{{ truenas_password }}"
+  delegate_to: localhost
+  register: truenas_train
+  tags:
+    - truenas_update
+
+- name: update | debug
+  debug:
+    var: truenas_train
+
+- name: update | check if update available
+  uri:
+    url: "{{ truenas_api_url + '/update/check_available' }}"
+    body:
+      train: "{{ truenas_train.json.selected }}"
+    body_format: json
+    force_basic_auth: true
+    method: "POST"
+    user: "{{ truenas_user }}"
+    password: "{{ truenas_password }}"
+  delegate_to: localhost
+  when: truenas_train.json.trains|length > 0
+  register: truenas_train_update
+  tags:
+    - truenas_update

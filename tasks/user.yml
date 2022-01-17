@@ -1,0 +1,24 @@
+---
+- name: user | get existing user
+  uri:
+    url: "{{ truenas_api_url + '/user' }}"
+    force_basic_auth: true
+    method: "GET"
+    user: "{{ truenas_user }}"
+    password: "{{ truenas_password }}"
+  delegate_to: localhost
+  register: truenas_user_found
+  tags:
+    - truenas_user
+
+- name: user | setting user configuration fact
+  set_fact:
+    truenas_user_config: "{{ lookup('template', 'user.j2') }}"
+  tags:
+    - truenas_user
+
+- name: user | print user configuration fact
+  debug:
+    msg: "{{ truenas_user_config }}"
+  tags:
+    - truenas_user

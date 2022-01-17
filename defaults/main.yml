@@ -1,0 +1,6 @@
+---
+web_protocol: "http"
+web_port: 80
+truenas_url: "{{ web_protocol + '://' + ansible_host + ':' + web_port|string }}"
+truenas_api_url: "{{ truenas_url + '/api/v2.0' }}"
+

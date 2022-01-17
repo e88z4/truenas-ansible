@@ -1,0 +1,12 @@
+---
+- include_tasks: update.yml
+  tags:
+    - truenas_update
+
+- include_tasks: group.yml
+  tags:
+    - truenas_group
+
+- include_tasks: user.yml
+  tags:
+    - truenas_user
