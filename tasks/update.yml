@@ -4,8 +4,8 @@
     url: "{{ truenas_api_url + '/update/get_trains' }}"
     force_basic_auth: true
     method: "GET"
-    user: "{{ truenas_user }}"
-    password: "{{ truenas_password }}"
+    user: "{{ truenas_api_user }}"
+    password: "{{ truenas_api_password }}"
   delegate_to: localhost
   register: truenas_train
   tags:
@@ -23,8 +23,8 @@
     body_format: json
     force_basic_auth: true
     method: "POST"
-    user: "{{ truenas_user }}"
-    password: "{{ truenas_password }}"
+    user: "{{ truenas_api_user }}"
+    password: "{{ truenas_api_password }}"
   delegate_to: localhost
   when: truenas_train.json.trains|length > 0
   register: truenas_train_update

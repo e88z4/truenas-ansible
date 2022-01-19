@@ -5,25 +5,25 @@
 {% set delete_groups = [] %}
 {% set built_in_groups = [] %}
 {% for group in truenas_group_found.json %}
-{%  set _ = existing_groups.update({group.group: {'id': group.id, 'gid': group.gid }}) %}
+{%  set _ = existing_groups.update({group.group: {'id': group.id, 'gid': group.gid, 'builtin': group.builtin }}) %}
 {% endfor  %}
 {% for group in truenas_group %}
 {%  if group.name not in existing_groups and group.state == 'present' %}
 {%      set _ = create_groups.append(group.config) %}
 {%  elif group.name in existing_groups and group.state == 'present' %}
-{%      if existing_groups[group.name].gid >= 1000 %}
+{%      if not existing_groups[group.name].builtin %}
 {%          set group_config = {
     'id': existing_groups[group.name].id,
     'config': group.config
 }%}
 {%          set _ = update_groups.append(group_config) %}
-{%      elif existing_groups[group.name].gid < 1000 %}
+{%      else %}
 {%          set _ = built_in_groups.append(group.config)%}
 {%      endif %}
 {%  elif group.name in existing_groups and group.state == 'absent' %}
-{%      if existing_groups[group.name].gid >= 1000 %}
+{%      if not existing_groups[group.name].builtin %}
 {%          set _ = delete_groups.append(existing_groups[group.name].id) %}
-{%      elif existing_groups[group.name].gid < 1000 %}
+{%      else %}
 {%          set _ = built_in_groups.append(group.config) %}
 {%      endif %}
 {%  endif %}

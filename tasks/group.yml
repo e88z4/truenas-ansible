@@ -4,8 +4,8 @@
     url: "{{ truenas_api_url + '/group' }}"
     force_basic_auth: true
     method: "GET"
-    user: "{{ truenas_user }}"
-    password: "{{ truenas_password }}"
+    user: "{{ truenas_api_user }}"
+    password: "{{ truenas_api_password }}"
   register: truenas_group_found
   delegate_to: localhost
   tags:
@@ -35,8 +35,8 @@
   uri:
     url: "{{ truenas_api_url + '/group' }}"
     force_basic_auth: true
-    user: "{{ truenas_user }}"
-    password: "{{ truenas_password }}"
+    user: "{{ truenas_api_user }}"
+    password: "{{ truenas_api_password }}"
     body_format: json
     method: "POST"
     body: "{{ item }}"
@@ -49,8 +49,8 @@
   uri:
     url: "{{ truenas_api_url + '/group/id/' + item.id|string }}"
     force_basic_auth: true
-    user: "{{ truenas_user }}"
-    password: "{{ truenas_password }}"
+    user: "{{ truenas_api_user }}"
+    password: "{{ truenas_api_password }}"
     body_format: json
     method: "PUT"
     body: "{{ item.config }}"
@@ -63,8 +63,8 @@
   uri:
     url: "{{ truenas_api_url + '/group/id/' + item|string }}"
     force_basic_auth: true
-    user: "{{ truenas_user }}"
-    password: "{{ truenas_password }}"
+    user: "{{ truenas_api_user }}"
+    password: "{{ truenas_api_password }}"
     method: "DELETE"
   with_items: "{{ truenas_group_config.delete_groups }}"
   delegate_to: localhost
