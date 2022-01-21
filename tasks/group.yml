@@ -10,26 +10,37 @@
   delegate_to: localhost
   tags:
     - truenas_group
+    - truenas_user
+    - truenas_group_debug
+    - truenas_user_debug
 
 - name: group | setting group configuration fact
   set_fact:
     truenas_group_config: "{{ lookup('template', 'group.j2') }}"
   tags:
     - truenas_group
+    - truenas_user
+    - truenas_group_debug
+    - truenas_user_debug
 
 - name: group | print group fact
   debug:
     msg: "{{ truenas_group_config }}"
   tags:
-    - truenas_group
+    - truenas_user_debug
+    - truenas_group_debug
+  
 
-- name: group | terminate if any built-in groups (id<1000) is modified
+- name: group | terminate if any built-in groups is modified
   fail:
     msg: "{{ item.name + ' is a built-in group' }}"
   when: truenas_group_config.built_in_groups | length > 0
   with_items: "{{ truenas_group_config.built_in_groups }}"
   tags:
+    - truenas_user
     - truenas_group
+    - truenas_group_debug
+    - truenas_user_debug
 
 - name: group | create group
   uri:
@@ -43,7 +54,10 @@
   with_items: "{{ truenas_group_config.create_groups }}"
   delegate_to: localhost
   tags:
+    - truenas_user
     - truenas_group
+    - truenas_group_debug
+    - truenas_user_debug
 
 - name: group | update group
   uri:
@@ -57,7 +71,10 @@
   with_items: "{{ truenas_group_config.update_groups }}"
   delegate_to: localhost
   tags:
+    - truenas_user
     - truenas_group
+    - truenas_group_debug
+    - truenas_user_debug
 
 - name: group | delete_group
   uri:
@@ -69,5 +86,40 @@
   with_items: "{{ truenas_group_config.delete_groups }}"
   delegate_to: localhost
   tags:
+    - truenas_user
+    - truenas_user_debug
     - truenas_group
+    - truenas_group_debug
+
+- name: group | get all groups
+  uri:
+    url: "{{ truenas_api_url + '/group' }}"
+    force_basic_auth: true
+    method: "GET"
+    user: "{{ truenas_api_user }}"
+    password: "{{ truenas_api_password }}"
+  register: truenas_group_found
+  delegate_to: localhost
+  tags:
+    - truenas_user
+    - truenas_user_debug
+    - truenas_group
+    - truenas_group_debug
+
+- name: group | setting group configuration fact
+  set_fact:
+    truenas_group_config: "{{ lookup('template', 'group.j2') }}"
+  tags:
+    - truenas_user
+    - truenas_user_debug
+    - truenas_group
+    - truenas_group_debug
+
+- name: group | print all group
+  debug:
+    msg: "{{ truenas_group_config.existing_groups }}"
+  delegate_to: localhost
+  tags:
+    - truenas_user_debug
+    - truenas_group_debug
 

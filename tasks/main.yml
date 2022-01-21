@@ -2,11 +2,16 @@
 - include_tasks: update.yml
   tags:
     - truenas_update
+    - truenas_update_debug
 
 - include_tasks: group.yml
   tags:
     - truenas_group
+    - truenas_user
+    - truenas_user_debug
+    - truenas_group_debug
 
 - include_tasks: user.yml
   tags:
     - truenas_user
+    - truneas_user_debug
