@@ -4,21 +4,62 @@
     url: "{{ truenas_api_url + '/user' }}"
     force_basic_auth: true
     method: "GET"
-    user: "{{ truenas_user }}"
-    password: "{{ truenas_password }}"
+    user: "{{ truenas_api_user }}"
+    password: "{{ truenas_api_password }}"
   delegate_to: localhost
   register: truenas_user_found
   tags:
     - truenas_user
+    - truenas_user_debug
 
 - name: user | setting user configuration fact
   set_fact:
     truenas_user_config: "{{ lookup('template', 'user.j2') }}"
   tags:
     - truenas_user
+    - truenas_user_debug
 
 - name: user | print user configuration fact
   debug:
     msg: "{{ truenas_user_config }}"
   tags:
+    - truenas_user_debug
+
+- name: user | terminate check if built-in user is modified
+  fail:
+    msg: "{{ item.username }} + ' is a built-in user'"
+  when: truenas_user_config.built_in_users | length > 0
+  with_items: truenas_user_config.built_in_users
+  tags:
     - truenas_user
+    - truenas_user_debug
+
+- name: user | create user
+  uri:
+    url: "{{ truenas_api_url + '/user' }}"
+    force_basic_auth: true
+    method: "POST"
+    user: "{{ truenas_api_user }}"
+    password: "{{ truenas_api_password }}"
+    body_format: "json"
+    body: "{{ item }}"
+  delegate_to: localhost
+  with_items: "{{ truenas_user_config.create_users }}"
+  tags:
+    - truenas_user
+    - truenas_user_debug
+
+- name: user | update user
+  uri:
+    url: "{{ truenas_api_url + '/user/id/' + item.id|string }}"
+    force_basic_auth: true
+    method: "PUT"
+    user: "{{ truenas_api_user }}"
+    password: "{{ truenas_api_password }}"
+    body_format: "json"
+    body: "{{ item.config }}"
+  delegate_to: localhost
+  with_items: "{{ truenas_user_config.update_users }}"
+  tags:
+    - truenas_user
+    - truenas_user_debug

@@ -1,7 +1,40 @@
 {% set truenas_users = dict() %}
 {% set existing_users = dict() %}
-{% set built_in_users = () %}
-{% set create_users = () %}
-{% set update_users = () %}
-{% set built_in_users = () %}
-{{ truenas_user_found }}
+{% set built_in_users = [] %}
+{% set create_users = [] %}
+{% set update_users = [] %}
+{% set delete_users = [] %}
+{% set built_in_users = [] %}
+{% for user in truenas_user_found.json %}
+{%  set _ = existing_users.update({user.username: {'id': user.id, 'uid': user.uid, 'builtin': user.builtin}}) %}
+{% endfor %}
+{% for user in truenas_user %}
+{%  if user.name not in existing_users and user.state == 'present' %}
+{%      set _ = user.config.update({'group':truenas_group_config.existing_groups[user.name].id}) %}
+{%      set _ = create_users.append(user.config) %}
+{%  elif user.name in existing_users and user.state == 'present' %}
+{%      if existing_users[user.name].builtin %}
+{%          set _ = "test" %}
+{%      else %}
+{%          set _ = user.config.update({'group':truenas_group_config.existing_groups[user.name].id}) %}
+{%          set config = {
+        'id': existing_users[user.name].id,
+        'config': user.config
+} %}
+{%          set _ = update_users.append(config) %}
+{%      endif%}
+{%  elif user.name in existing_users and user.state == 'absent' %}
+{%      if existing_users[user.name].builtin %}
+{%          set _ = built_in_users.append(user.config) %}
+{%      else %}
+{%          set _ = delete_users.append(user.config) %}
+{%      endif %}
+{%  endif%}
+{% endfor %}
+{% set _ = truenas_users.update({
+    'create_users': create_users,
+    'update_users': update_users,
+    'delete_users': delete_users,
+    'built_in_users': built_in_users
+}) %}
+{{ truenas_users }}
