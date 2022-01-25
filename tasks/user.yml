@@ -63,3 +63,19 @@
   tags:
     - truenas_user
     - truenas_user_debug
+
+- name: user | delete user
+  uri:
+    url: "{{ truenas_api_url + '/user/id/' + item.id|string }}"
+    force_basic_auth: true
+    method: "DELETE"
+    user: "{{ truenas_api_user }}"
+    password: "{{ truenas_api_password }}"
+    body_format: "json"
+    body: "{{ item.config }}"
+  delegate_to: localhost
+  with_items: "{{ truenas_user_config.delete_users }}"
+  tags:
+    - truenas_user
+    - truenas_user_debug
+
